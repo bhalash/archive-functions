@@ -11,7 +11,7 @@
  * @author     Mark Grealish <mark@bhalash.com>
  * @copyright  Copyright (c) 2015 Mark Grealish
  * @license    https://www.gnu.org/copyleft/gpl.html The GNU GPL v3.0
- * @version    3.0
+ * @version    1.0
  * @link       https://github.com/bhalash/archive-functions
  */
 
@@ -59,7 +59,7 @@ function arc_blog_age($format = '%a') {
  * @param   int          $number             The month of the year as a number.
  * @param   string       $format             Format for date.
  * @return  string                           The month as a word.
- * @link    http://stackoverflow.com/a/18467892/1433400
+ * @link    http://stackoverflow.com/a/18467892/1431.00
  */
 
 function arc_get_month_from_number($number, $format = 'M') {
@@ -234,9 +234,9 @@ function arc_blog_statistics($echo = false) {
             get_bloginfo('name')
         );
 
-        $categories = __('The blog %s has %s posts in %s categories, that are labelled with %s tags.', 'arc');
-        $visitors = __('%s different visitors have left a total of %s comments.', 'arc');
-        $average = __('On average, a new post has been published every %s days over the last %s days.', 'arc');
+        $categories = __('The blog %s has %s posts in %s categories, that are labelled with %s tags.', 'sheepie');
+        $visitors = __('%s different visitors have left a total of %s comments.', 'sheepie');
+        $average = __('On average, a new post has been published every %s days over the last %s days.', 'sheepie');
 
         $stats[] = sprintf($categories, $anchor, wp_count_posts()->publish, count(get_categories()), count(get_tags()));
         $stats[] = sprintf($visitors, get_comment_authors_count(), wp_count_comments()->total_comments);
@@ -289,7 +289,7 @@ function arc_query_has_pages() {
 
 function arc_archive_page_count($echo = false) {
     $page = (get_query_var('paged')) ? get_query_var('paged') : 1;
-    $count = sprintf(__('Page %s of %s', 'arc'), $page, arc_query_page_total());
+    $count = sprintf(__('Page %s of %s', 'sheepie'), $page, arc_query_page_total());
 
     if (!$echo) {
         return $count;
@@ -330,7 +330,7 @@ function arc_search_results_count($echo = false) {
     // Stops an overage on the final page of the search.
     $count_high = ($position > $total_results) ? $total : $position;
 
-    $count = sprintf(__('Results %s to %s of %s', 'arc'),
+    $count = sprintf(__('Results %s to %s of %s', 'sheepie'),
         $count_low,
         $count_high,
         $total
