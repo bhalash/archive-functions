@@ -284,12 +284,13 @@ function arc_query_has_pages() {
  * inclusion.
  * 
  * @param   bool        $echo       Echo results, true/false.
+ * @param   string      $message    Message to output.
  * @return  string      $count      The post count.
  */
 
-function arc_archive_page_count($echo = false) {
+function arc_archive_page_count($echo = true, $message = 'Page %s of %s') {
     $page = (get_query_var('paged')) ? get_query_var('paged') : 1;
-    $count = sprintf(__('Page %s of %s', 'sheepie'), $page, arc_query_page_total());
+    $count = sprintf($message, $page, arc_query_page_total());
 
     if (!$echo) {
         return $count;
