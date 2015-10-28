@@ -31,23 +31,16 @@ if (!defined('ABSPATH')) {
  */
 
 function arc_blog_age($format = '%a') {
-    $trans_name = 'arc_blog_age'; 
-    $trans_expiry = 24 * HOUR_IN_SECONDS;
+    $dates = array();
 
-    if (!($dates = get_transient($trans_name))) {
-        $dates = array();
+    $dates['first'] = new DateTime(get_posts(array(
+        'posts_per_page' => 1,
+        'order' => 'ASC'
+    ))[0]->post_date);
 
-        $dates['first'] = new DateTime(get_posts(array(
-            'posts_per_page' => 1,
-            'order' => 'ASC'
-        ))[0]->post_date);
-
-        $dates['last'] = new DateTime(get_posts(array(
-            'posts_per_page' => 1
-        ))[0]->post_date);
-
-        set_transient($trans_name, $dates, $trans_expiry);
-    }
+    $dates['last'] = new DateTime(get_posts(array(
+        'posts_per_page' => 1
+    ))[0]->post_date);
 
     $blog_age = $dates['first']->diff($dates['last'])->format($format);
     return $blog_age;
@@ -83,32 +76,25 @@ function arc_get_month_from_number($number, $format = 'M') {
  */
 
 function arc_timed_archives_count() {
-    $trans_name = 'arc_timed_archives_count';
-    $trans_expiry = 24 * HOUR_IN_SECONDS;
+    global $wpdb;
 
-    if (!($counts = get_transient($trans_name))) {
-        global $wpdb;
+    $from_date = preg_replace('/-.*/', '', get_posts(array(
+        'posts_per_page' => 1,
+        'order' => 'ASC'
+    ))[0]->post_date);
 
-        $from_date = preg_replace('/-.*/', '', get_posts(array(
-            'posts_per_page' => 1,
-            'order' => 'ASC'
-        ))[0]->post_date);
+    for ($i = date('Y'); $i >= $from_date; $i--) {
+        $counts[$i] = array();
 
-        for ($i = date('Y'); $i >= $from_date; $i--) {
-            $counts[$i] = array();
+        $month = $wpdb->get_results($wpdb->prepare(
+            "SELECT MONTH(post_date) AS post_month, count(ID) AS post_count from " .
+            "{$wpdb->posts} WHERE post_status = 'publish' AND YEAR(post_date) = %d " .
+            "GROUP BY post_month;", $i
+        ), OBJECT_K);
 
-            $month = $wpdb->get_results($wpdb->prepare(
-                "SELECT MONTH(post_date) AS post_month, count(ID) AS post_count from " .
-                "{$wpdb->posts} WHERE post_status = 'publish' AND YEAR(post_date) = %d " .
-                "GROUP BY post_month;", $i
-            ), OBJECT_K);
-
-            foreach ($month as $m) {
-                $counts[$i][$m->post_month] = $m->post_count;
-            }
+        foreach ($month as $m) {
+            $counts[$i][$m->post_month] = $m->post_count;
         }
-
-        set_transient($trans_name, $counts, $trans_expiry);
     }
 
     return $counts;
@@ -155,23 +141,17 @@ function arc_post_interval($precision = 2) {
  */
 
 function arc_get_comment_authors_count($echo = false) {
-    $trans_name = 'arc_comment_author_count';
-    $trans_expiry = 24 * HOUR_IN_SECONDS;
+    $authors = array();
 
-    if (!($authors = get_transient($trans_name))) {
-        $authors = array();
-
-        foreach (get_comments() as $comment) {
-            if (!in_array($comment->comment_author_email, $authors)) {
-                if (!empty($comment->comment_author_email)) {
-                    $authors[] = $comment->comment_author_email;
-                }
+    foreach (get_comments() as $comment) {
+        if (!in_array($comment->comment_author_email, $authors)) {
+            if (!empty($comment->comment_author_email)) {
+                $authors[] = $comment->comment_author_email;
             }
         }
-
-        $authors = count($authors);
-        set_transient($trans_name, $authors, $trans_expiry);
     }
+
+    $authors = count($authors);
 
     if (!$echo) {
         return $authors;
@@ -186,26 +166,19 @@ function arc_get_comment_authors_count($echo = false) {
  */
 
 function arc_year_first_post($year, $has_image = true) {
-    $trans_name = 'arc_year_first_post_' . $year;
-    $trans_expiry = 24 * HOUR_IN_SECONDS;
+    $yearly_posts = get_posts(array(
+        'year' => $year,
+        'order' => 'ASC'
+    ));
 
-    if (!($first_post = get_transient($trans_name))) {
-        $yearly_posts = get_posts(array(
-            'year' => $year,
-            'order' => 'ASC'
-        ));
-
-        if ($has_image) {
-            foreach ($yearly_posts as $post) {
-                if (has_post_image($post->ID)) {
-                    $first_post = $post;
-                }
+    if ($has_image) {
+        foreach ($yearly_posts as $post) {
+            if (has_post_image($post->ID)) {
+                $first_post = $post;
             }
-        } else {
-            $first_post = $yearly_posts[0];
         }
-
-        set_transient($trans_name, $first_post, $trans_expiry);
+    } else {
+        $first_post = $yearly_posts[0];
     }
 
     return $first_post;
@@ -222,29 +195,23 @@ function arc_year_first_post($year, $has_image = true) {
  */
 
 function arc_blog_statistics($echo = false) {
-    $trans_name = 'arc_blog_statistics';
-    $trans_expiry = 24 * HOUR_IN_SECONDS;
+    $stats = array();
 
-    if (!($stats = get_transient($trans_name))) {
-        $stats = array();
+    $anchor = sprintf('<a title="%s" href="%s">%s</a>',
+        get_bloginfo('name'),
+        home_url(),
+        get_bloginfo('name')
+    );
 
-        $anchor = sprintf('<a title="%s" href="%s">%s</a>',
-            get_bloginfo('name'),
-            home_url(),
-            get_bloginfo('name')
-        );
+    $categories = __('The blog %s has %s posts in %s categories, that are labelled with %s tags.', 'sheepie');
+    $visitors = __('%s different visitors have left a total of %s comments.', 'sheepie');
+    $average = __('On average, a new post has been published every %s days over the last %s days.', 'sheepie');
 
-        $categories = __('The blog %s has %s posts in %s categories, that are labelled with %s tags.', 'sheepie');
-        $visitors = __('%s different visitors have left a total of %s comments.', 'sheepie');
-        $average = __('On average, a new post has been published every %s days over the last %s days.', 'sheepie');
+    $stats[] = sprintf($categories, $anchor, wp_count_posts()->publish, count(get_categories()), count(get_tags()));
+    $stats[] = sprintf($visitors, get_comment_authors_count(), wp_count_comments()->total_comments);
+    $stats[] = sprintf($average, post_interval(), blog_age());
 
-        $stats[] = sprintf($categories, $anchor, wp_count_posts()->publish, count(get_categories()), count(get_tags()));
-        $stats[] = sprintf($visitors, get_comment_authors_count(), wp_count_comments()->total_comments);
-        $stats[] = sprintf($average, post_interval(), blog_age());
-
-        $stats = implode(' ', $stats);
-        set_transient($trans_name, $stats, $tranas_expiry);
-    }
+    $stats = implode(' ', $stats);
 
     if (!$echo) {
         return $stats;
