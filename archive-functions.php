@@ -5,7 +5,7 @@
  * -----------------------------------------------------------------------------
  * This is a simple dumb list of the site's archives by date, by category and by
  * tag. You are welcome to insert any custom taxonomies and post types wherever.
- * 
+ *
  * @category   PHP Script
  * @package    Archive Functions
  * @author     Mark Grealish <mark@bhalash.com>
@@ -23,11 +23,11 @@ if (!defined('ABSPATH')) {
  * Get the Blog's Age
  * -----------------------------------------------------------------------------
  * Return the age of the blog in $format. Defaults to days.
- * 
+ *
  * @param   string      $format         DateInterval format.
  * @return  string      $blog_age       Age of the blog in $format.
  * @link    https://php.net/manual/en/datetime.diff.php
- * @link    https://php.net/manual/en/class.dateinterval.php 
+ * @link    https://php.net/manual/en/class.dateinterval.php
  */
 
 function arc_blog_age($format = '%a') {
@@ -63,15 +63,15 @@ function arc_get_month_from_number($number, $format = 'M') {
  * Generate Dated Archive Post Count
  * -----------------------------------------------------------------------------
  * Generate the initial count of posts by year and month, and save it under the
- * given options key. Generating this can be resource intensive, so it makes 
+ * given options key. Generating this can be resource intensive, so it makes
  * sense to store this as a variable.
- * 
+ *
  * 1. Get 1 post in ascending order. This is the first post on the blog.
  * 2. Extract the date of the post.
  * 3. Parse that down to the year alone.
- * 
+ *
  * @param   string      $option_name        Options key for the post count.
- * @return  array       $counts             Returned counts for the 
+ * @return  array       $counts             Returned counts for the
  * @link    http://wordpress.stackexchange.com/a/60862
  */
 
@@ -104,11 +104,11 @@ function arc_timed_archives_count() {
  * Generate Category Archive Post Count
  * -----------------------------------------------------------------------------
  * Generate the initial count of posts by year and month, and save it under the
- * given options key. Generating this can be resource intensive, so it makes 
+ * given options key. Generating this can be resource intensive, so it makes
  * sense to store this as a variable.
- * 
+ *
  * @param   string      $option_name        Options key for the post count.
- * @return  array       $counts             Returned counts for the 
+ * @return  array       $counts             Returned counts for the
  * @link    http://wordpress.stackexchange.com/a/60862
  */
 
@@ -120,7 +120,7 @@ function arc_category_archives_count() {
  * Post Interval Average
  * -----------------------------------------------------------------------------
  * Return the blog's average posts per day, rounded to $percision.
- * 
+ *
  * @param   int     $precision          Rounding precision.
  * @return  int     $posts_per_day      Number of posts per day.
  */
@@ -135,8 +135,8 @@ function arc_post_interval($precision = 2) {
  * Count Comment Authors
  * -----------------------------------------------------------------------------
  * WordPress doesn't appear to have a convenient way to count unique comment
- * authors. 
- * 
+ * authors.
+ *
  * @return int      $count          count of comment authors.
  */
 
@@ -187,9 +187,9 @@ function arc_year_first_post($year, $has_image = true) {
 /*
  * Print Blog Statistics
  * -----------------------------------------------------------------------------
- * Rattle off some useful statistics about the age and amount of content on the 
+ * Rattle off some useful statistics about the age and amount of content on the
  * blog.
- * 
+ *
  * @param   bool        $echo           Echo stats, true/false.
  * @return  string      $stats          Blog stats, printed or returned.
  */
@@ -228,7 +228,7 @@ function arc_blog_statistics($echo = false) {
 
 function arc_query_page_total() {
     global $wp_query;
-    
+
     return ceil($wp_query->found_posts / get_option('posts_per_page'));
 }
 
@@ -249,7 +249,7 @@ function arc_query_has_pages() {
  * This only counts published, public posts; drafts, pages, custom
  * post types and private posts are all excluded unless you specify
  * inclusion.
- * 
+ *
  * @param   bool        $echo       Echo results, true/false.
  * @param   string      $message    Message to output.
  * @return  string      $count      The post count.
@@ -269,9 +269,9 @@ function arc_archive_page_count($echo = true, $message = 'Page %s of %s') {
 /**
  * Search Result Count
  * -----------------------------------------------------------------------------
- * Return a count of results for the search in the format 
+ * Return a count of results for the search in the format
  * 'Results 1 to 10 of 200'
- * 
+ *
  * @param   int     $page_num       Current page nunber.
  * @param   int     $total_results  Total number of search results.
  * @return  string                  Count of results.
@@ -279,13 +279,13 @@ function arc_archive_page_count($echo = true, $message = 'Page %s of %s') {
 
 function arc_search_results_count($echo = false) {
     global $wp_query;
-    
+
     $total = $wp_query->found_posts;
 
     $page = (get_query_var('paged')) ? get_query_var('paged') : 1;
     $posts_per_page = get_option('posts_per_page');
 
-    /* Position within the query. 
+    /* Position within the query.
      * i.e. page = 3, posts_per_page = 10
      * 3 * 10 = 30, so we're on the page that ends with the 30th post.
      */
@@ -327,7 +327,7 @@ function arc_search_url($order = null, $echo = true) {
     $query = get_search_query();
     $url = array();
 
-    $url[] = esc_url(home_url('/')); 
+    $url[] = esc_url(home_url('/'));
     $url[] = '?s=';
     $url[] = esc_attr($query);
     $url[] = '&sort=date';
