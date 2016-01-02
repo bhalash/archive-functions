@@ -87,9 +87,10 @@ function arc_timed_archives_count() {
         $counts[$i] = array();
 
         $month = $wpdb->get_results($wpdb->prepare(
-            "SELECT MONTH(post_date) AS post_month, count(ID) AS post_count from " .
-            "{$wpdb->posts} WHERE post_status = 'publish' AND YEAR(post_date) = %d " .
-            "GROUP BY post_month;", $i
+            "SELECT MONTH(post_date) AS post_month, count(ID) AS post_count"
+                . " from {$wpdb->posts} WHERE post_status = 'publish'"
+                . " AND YEAR(post_date) = %d GROUP BY post_month;",
+            $i
         ), OBJECT_K);
 
         foreach ($month as $m) {
